@@ -1,8 +1,0 @@
-../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_rcc.h:1257:22:LL_RCC_LSE_SetDriveCapability	1
-../Core/Src/main.c:27:5:_write	1
-../Core/Src/main.c:79:5:main	1
-../Core/Src/main.c:117:6:SystemClock_Config	3
-../Core/Src/main.c:152:6:Radio_Init	1
-../Core/Src/main.c:184:6:RadioOnDioIrq	5
-../Core/Src/main.c:221:6:ProcessAndPrintPayload	3
-../Core/Src/main.c:252:6:Error_Handler	1

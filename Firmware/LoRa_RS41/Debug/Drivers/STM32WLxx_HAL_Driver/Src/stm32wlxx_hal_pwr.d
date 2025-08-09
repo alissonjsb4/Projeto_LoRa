@@ -40,10 +40,10 @@ Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_pwr.o: \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h \
  ../Core/Inc/main.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h \
- ../Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h \
- ../Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_errno.h \
- ../Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_conf.h \
- ../Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo.h \
+ /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h \
+ /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_errno.h \
+ /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_conf.h \
+ /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo.h \
  /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_driver.h \
  ../Core/Inc/subghz.h \
  /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Utils/misc/stm32_mem.h \
@@ -90,10 +90,10 @@ Drivers/STM32WLxx_HAL_Driver/Src/stm32wlxx_hal_pwr.o: \
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h:
-../Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h:
-../Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_errno.h:
-../Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_conf.h:
-../Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo.h:
+/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h:
+/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_errno.h:
+/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_conf.h:
+/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo.h:
 /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_driver.h:
 ../Core/Inc/subghz.h:
 /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Utils/misc/stm32_mem.h:
