@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "radio_driver.h"
+#include "protocol.h"
 
 /* USER CODE BEGIN 0 */
 // Redireciona a saída do printf para a USART2 (nossa porta de debug para o PC)
@@ -41,22 +42,11 @@ typedef struct __attribute__((packed)) {
     uint8_t  sats_and_fix;
 } LoRaPayload_t;
 
-// --- Definições do Comando ---
-typedef enum {
-    CMD_REQUEST_TELEMETRY = 0x01,
-    CMD_ACK = 0x03
-} CommandType_t;
 
-typedef struct __attribute__((packed)) {
-    CommandType_t command;
-    uint32_t sequence_number;
-    uint8_t reserved[3];
-} CommandPayload_t;
 
 // --- Parser da Radiosonda ---
 const uint8_t SYNC_WORD = 0xAA;
 #define TELEMETRY_PAYLOAD_SIZE sizeof(LoRaPayload_t)
-#define COMMAND_PAYLOAD_SIZE sizeof(CommandPayload_t)
 
 enum ParserState { AWAITING_SYNC, RECEIVING_PAYLOAD, AWAITING_CHECKSUM };
 
@@ -81,7 +71,7 @@ int byteCounter = 0;
 enum ParserState currentState = AWAITING_SYNC;
 
 // --- Variáveis da Comunicação LoRa ---
-uint8_t lora_rx_buffer[32]; // Buffer para receber comandos
+uint8_t lora_rx_buffer[MAX_PACKET_SIZE]; // Buffer para receber comandos
 LoRaPayload_t latest_telemetry; // Última telemetria válida da radiosonda
 volatile bool telemetry_available = false; // Flag indicando se há telemetria válida
 volatile bool lora_tx_busy = false; // Flag para controlar transmissão LoRa
@@ -249,28 +239,71 @@ void ProcessByte(uint8_t receivedByte)
   }
 }
 
-void ProcessLoRaCommand(uint8_t* buffer, uint8_t size)
+void SendResetCommandToRS41(void)
 {
-    if (size != COMMAND_PAYLOAD_SIZE) {
-        printf("ERRO: Comando LoRa com tamanho inválido: %d\r\n", size);
+    // O pacote completo terá 5 bytes: SYNC + CMD + PARAM + LEN + CHECKSUM
+    uint8_t packet_to_send[MAX_PACKET_SIZE];
+
+    // --- Montagem do Pacote ---
+
+    // Byte 0: Palavra de Sincronização
+    packet_to_send[0] = 0xAA; //Palavra de sincronização #define CMD_SYNC_WORD   0xAA
+
+    // Byte 1: ID do Comando (Ação)
+    packet_to_send[1] = 0x04; // ID do comando #define CMD_EXECUTE     0x04
+
+    // Byte 2: ID do Parâmetro (Alvo)
+    packet_to_send[2] = 0x01; // ID da ação específica #define PARAM_MCU_RESET 0x01
+
+    // Byte 3: Comprimento do Payload de Dados (0 para este comando)
+    packet_to_send[3] = 0x00;
+
+    // --- Cálculo do Checksum ---
+    // O checksum é calculado sobre os bytes do payload: CMD_ID, PARAM_ID e LEN.
+    // Portanto, calculamos sobre 3 bytes, começando do índice 1 do nosso buffer.
+    uint8_t checksum = calculate_checksum(&packet_to_send[1], 3);
+
+    // Byte 4: Checksum
+    packet_to_send[4] = checksum;
+
+    // --- Transmissão via UART ---
+    printf("Enviando comando de RESET para a RS41 via UART...\r\n");
+    HAL_UART_Transmit(&huart1, packet_to_send, sizeof(packet_to_send), HAL_MAX_DELAY);
+}
+
+void SendResetResponse(void)
+{
+    if (lora_tx_busy) {
+        printf("WARN: Radio ocupado, resposta descartada.\r\n");
         return;
     }
 
-    CommandPayload_t* command = (CommandPayload_t*)buffer;
+    lora_tx_busy = true;
+    printf("Enviando comando de reset - ID: %lu\r\n", latest_telemetry.packet_id);
 
-    printf("Comando recebido: %d, Seq: %lu\r\n", command->command, command->sequence_number);
+    // --- LÓGICA CORRIGIDA ---
 
-    switch (command->command)
-    {
-        case CMD_REQUEST_TELEMETRY:
-            printf("Processando pedido de telemetria...\r\n");
-            SendTelemetryResponse();
-            break;
+    // 1. Crie um buffer de transmissão na pilha com o tamanho MÁXIMO padronizado.
+    //    Esta é a correção crucial. Agora 'tx_buffer' é um array real com memória alocada.
+    uint8_t tx_buffer[TELEMETRY_PAYLOAD_SIZE];
+    // 2. Limpe o buffer com zeros para garantir que o padding seja 0x00.
+    memset(tx_buffer, 0, TELEMETRY_PAYLOAD_SIZE);
 
-        default:
-            printf("WARN: Comando desconhecido: %d\r\n", command->command);
-            break;
-    }
+    // 3. Copie os dados de telemetria reais para o início do buffer maior.
+    memcpy(tx_buffer, &latest_telemetry, TELEMETRY_PAYLOAD_SIZE); // Use sizeof() para segurança
+
+    // 4. Configure o rádio para enviar um pacote do tamanho MÁXIMO.
+    PacketParams_t packetParams;
+    packetParams.PacketType = PACKET_TYPE_LORA;
+    packetParams.Params.LoRa.PreambleLength = LORA_PREAMBLE_LENGTH;
+    packetParams.Params.LoRa.HeaderType = LORA_PACKET_FIXED_LENGTH;
+    packetParams.Params.LoRa.PayloadLength = TELEMETRY_PAYLOAD_SIZE;
+    packetParams.Params.LoRa.CrcMode = LORA_CRC_ON;
+    packetParams.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
+    SUBGRF_SetPacketParams(&packetParams);
+
+    // 5. Envie o buffer completo de tamanho máximo.
+    SUBGRF_SendPayload(tx_buffer, TELEMETRY_PAYLOAD_SIZE, 0);
 }
 
 void SendTelemetryResponse(void)
@@ -288,7 +321,19 @@ void SendTelemetryResponse(void)
     lora_tx_busy = true;
     printf("Enviando telemetria - ID: %lu\r\n", latest_telemetry.packet_id);
 
-    // Reconfigura para telemetria (tamanho diferente do comando)
+    // --- LÓGICA CORRIGIDA ---
+
+    // 1. Crie um buffer de transmissão na pilha com o tamanho MÁXIMO padronizado.
+    //    Esta é a correção crucial. Agora 'tx_buffer' é um array real com memória alocada.
+    uint8_t tx_buffer[TELEMETRY_PAYLOAD_SIZE];
+
+    // 2. Limpe o buffer com zeros para garantir que o padding seja 0x00.
+//    memset(tx_buffer, 0, TELEMETRY_PAYLOAD_SIZE);
+
+    // 3. Copie os dados de telemetria reais para o início do buffer maior.
+    memcpy(tx_buffer, &latest_telemetry, TELEMETRY_PAYLOAD_SIZE); // Use sizeof() para segurança
+
+    // 4. Configure o rádio para enviar um pacote do tamanho MÁXIMO.
     PacketParams_t packetParams;
     packetParams.PacketType = PACKET_TYPE_LORA;
     packetParams.Params.LoRa.PreambleLength = LORA_PREAMBLE_LENGTH;
@@ -298,35 +343,39 @@ void SendTelemetryResponse(void)
     packetParams.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
     SUBGRF_SetPacketParams(&packetParams);
 
-    SUBGRF_SendPayload((uint8_t*)&latest_telemetry, TELEMETRY_PAYLOAD_SIZE, 0);
+    // 5. Envie o buffer completo de tamanho máximo.
+    SUBGRF_SendPayload(tx_buffer, TELEMETRY_PAYLOAD_SIZE, 0);
 }
 
-void SendAckResponse(uint32_t sequence_number)
+
+void ProcessLoRaCommand(uint8_t* buffer, uint8_t size)
 {
-    if (lora_tx_busy) {
-        printf("WARN: Radio ocupado, ACK descartado.\r\n");
+    if (size != MAX_PACKET_SIZE) {
+        printf("ERRO: Comando LoRa com tamanho inválido: %d\r\n", size);
         return;
     }
 
-    CommandPayload_t ack_response;
-    ack_response.command = CMD_ACK;
-    ack_response.sequence_number = sequence_number;
-    memset(ack_response.reserved, 0, sizeof(ack_response.reserved));
+    CommandPacket_t* command = (CommandPacket_t*)buffer;
 
-    lora_tx_busy = true;
-    printf("Enviando ACK para seq: %lu\r\n", sequence_number);
+    printf("Comando recebido: %d, Seq: %lu\r\n", command->command_type, command->sequence_number);
 
-    // Reconfigura para comando (tamanho diferente da telemetria)
-    PacketParams_t packetParams;
-    packetParams.PacketType = PACKET_TYPE_LORA;
-    packetParams.Params.LoRa.PreambleLength = LORA_PREAMBLE_LENGTH;
-    packetParams.Params.LoRa.HeaderType = LORA_PACKET_FIXED_LENGTH;
-    packetParams.Params.LoRa.PayloadLength = COMMAND_PAYLOAD_SIZE;
-    packetParams.Params.LoRa.CrcMode = LORA_CRC_ON;
-    packetParams.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
-    SUBGRF_SetPacketParams(&packetParams);
+    switch (command->command_type)
+    {
+        case CMD_TYPE_REQUEST:
+            printf("Processando pedido de telemetria...\r\n");
+            SendTelemetryResponse();
+            break;
 
-    SUBGRF_SendPayload((uint8_t*)&ack_response, COMMAND_PAYLOAD_SIZE, 0);
+        case CMD_TYPE_EXECUTE:
+			printf("Processando pedido de reset...\r\n");
+			SendResetCommandToRS41();
+			SendResetResponse();
+			break;
+
+        default:
+            printf("WARN: Comando desconhecido: %d\r\n", command->command_type);
+            break;
+    }
 }
 
 void Radio_Init(void)
@@ -351,7 +400,7 @@ void Radio_Init(void)
     packetParams.PacketType = PACKET_TYPE_LORA;
     packetParams.Params.LoRa.PreambleLength = LORA_PREAMBLE_LENGTH;
     packetParams.Params.LoRa.HeaderType = LORA_PACKET_FIXED_LENGTH;
-    packetParams.Params.LoRa.PayloadLength = COMMAND_PAYLOAD_SIZE; // Inicialmente configurado para comandos
+    packetParams.Params.LoRa.PayloadLength = MAX_PACKET_SIZE; // Inicialmente configurado para comandos
     packetParams.Params.LoRa.CrcMode = LORA_CRC_ON;
     packetParams.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
     SUBGRF_SetPacketParams(&packetParams);
@@ -377,10 +426,6 @@ void RadioOnDioIrq(RadioIrqMasks_t radioIrq)
 
                 printf("Comando LoRa recebido! RSSI: %d dBm, SNR: %d, Size: %d\r\n",
                        packetStatus.Params.LoRa.RssiPkt, packetStatus.Params.LoRa.SnrPkt, received_size);
-
-
-
-
                 ProcessLoRaCommand(lora_rx_buffer, received_size);
             }
             break;
@@ -396,7 +441,7 @@ void RadioOnDioIrq(RadioIrqMasks_t radioIrq)
             packetParams.PacketType = PACKET_TYPE_LORA;
             packetParams.Params.LoRa.PreambleLength = LORA_PREAMBLE_LENGTH;
             packetParams.Params.LoRa.HeaderType = LORA_PACKET_FIXED_LENGTH;
-            packetParams.Params.LoRa.PayloadLength = COMMAND_PAYLOAD_SIZE;
+            packetParams.Params.LoRa.PayloadLength = MAX_PACKET_SIZE;
             packetParams.Params.LoRa.CrcMode = LORA_CRC_ON;
             packetParams.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
             SUBGRF_SetPacketParams(&packetParams);
@@ -412,7 +457,7 @@ void RadioOnDioIrq(RadioIrqMasks_t radioIrq)
             packetParamsCrc.PacketType = PACKET_TYPE_LORA;
             packetParamsCrc.Params.LoRa.PreambleLength = LORA_PREAMBLE_LENGTH;
             packetParamsCrc.Params.LoRa.HeaderType = LORA_PACKET_FIXED_LENGTH;
-            packetParamsCrc.Params.LoRa.PayloadLength = COMMAND_PAYLOAD_SIZE;
+            packetParamsCrc.Params.LoRa.PayloadLength = MAX_PACKET_SIZE;
             packetParamsCrc.Params.LoRa.CrcMode = LORA_CRC_ON;
             packetParamsCrc.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
             SUBGRF_SetPacketParams(&packetParamsCrc);
@@ -427,7 +472,7 @@ void RadioOnDioIrq(RadioIrqMasks_t radioIrq)
             packetParamsTimeout.PacketType = PACKET_TYPE_LORA;
             packetParamsTimeout.Params.LoRa.PreambleLength = LORA_PREAMBLE_LENGTH;
             packetParamsTimeout.Params.LoRa.HeaderType = LORA_PACKET_FIXED_LENGTH;
-            packetParamsTimeout.Params.LoRa.PayloadLength = COMMAND_PAYLOAD_SIZE;
+            packetParamsTimeout.Params.LoRa.PayloadLength = MAX_PACKET_SIZE;
             packetParamsTimeout.Params.LoRa.CrcMode = LORA_CRC_ON;
             packetParamsTimeout.Params.LoRa.InvertIQ = LORA_IQ_NORMAL;
             SUBGRF_SetPacketParams(&packetParamsTimeout);

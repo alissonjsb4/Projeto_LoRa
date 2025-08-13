@@ -1,7 +1,8 @@
-Core/Src/main.o: ../Core/Src/main.c \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_driver.h \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_conf.h \
- ../Core/Inc/platform.h \
+Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
+ ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h \
+ ../Core/Inc/stm32wlxx_hal_conf.h \
+ ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_dma.h \
+ ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_def.h \
  ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wlxx.h \
  ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wl55xx.h \
  ../Drivers/CMSIS/Include/core_cm4.h \
@@ -10,10 +11,6 @@ Core/Src/main.o: ../Core/Src/main.c \
  ../Drivers/CMSIS/Include/cmsis_gcc.h \
  ../Drivers/CMSIS/Include/mpu_armv7.h \
  ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/system_stm32wlxx.h \
- ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h \
- ../Core/Inc/stm32wlxx_hal_conf.h \
- ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_dma.h \
- ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_def.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_dma.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_dmamux.h \
@@ -37,23 +34,26 @@ Core/Src/main.o: ../Core/Src/main.c \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart_ex.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h \
- ../Core/Inc/main.h \
+ ../Core/Inc/dma.h ../Core/Inc/main.h ../Core/Inc/subghz.h \
+ ../Core/Inc/usart.h ../Core/Inc/gpio.h \
+ /home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo.h \
+ /home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_errno.h \
+ /home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_conf.h \
+ /home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Radio/radio_driver.h \
+ /home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Radio/radio_conf.h \
+ ../Core/Inc/platform.h \
  ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_errno.h \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_conf.h \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo.h \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_driver.h \
- ../Core/Inc/subghz.h \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Utils/misc/stm32_mem.h \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Utils/conf/utilities_conf.h \
+ /home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h \
+ /home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Utils/misc/stm32_mem.h \
+ /home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Utils/conf/utilities_conf.h \
  ../Drivers/CMSIS/Include/cmsis_compiler.h \
- /home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_board_if.h \
- ../Core/Inc/main.h ../Core/Inc/dma.h ../Core/Inc/usart.h \
- ../Core/Inc/gpio.h
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_driver.h:
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_conf.h:
-../Core/Inc/platform.h:
+ /home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Radio/radio_board_if.h \
+ ../Core/Inc/protocol.h
+../Core/Inc/main.h:
+../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
+../Core/Inc/stm32wlxx_hal_conf.h:
+../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_dma.h:
+../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_def.h:
 ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wlxx.h:
 ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/stm32wl55xx.h:
 ../Drivers/CMSIS/Include/core_cm4.h:
@@ -62,10 +62,6 @@ Core/Src/main.o: ../Core/Src/main.c \
 ../Drivers/CMSIS/Include/cmsis_gcc.h:
 ../Drivers/CMSIS/Include/mpu_armv7.h:
 ../Drivers/CMSIS/Device/ST/STM32WLxx/Include/system_stm32wlxx.h:
-../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal.h:
-../Core/Inc/stm32wlxx_hal_conf.h:
-../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_dma.h:
-../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_def.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_dma.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_dmamux.h:
@@ -89,19 +85,21 @@ Core/Src/main.o: ../Core/Src/main.c \
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_hal_uart_ex.h:
 ../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_system.h:
-../Core/Inc/main.h:
-../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h:
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h:
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_errno.h:
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_conf.h:
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo.h:
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_driver.h:
-../Core/Inc/subghz.h:
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Utils/misc/stm32_mem.h:
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Utils/conf/utilities_conf.h:
-../Drivers/CMSIS/Include/cmsis_compiler.h:
-/home/alisson/STM32CubeIDE/novo_workspace_limpo/LoRa_RS41/Radio/radio_board_if.h:
-../Core/Inc/main.h:
 ../Core/Inc/dma.h:
+../Core/Inc/main.h:
+../Core/Inc/subghz.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/gpio.h:
+/home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo.h:
+/home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_errno.h:
+/home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_conf.h:
+/home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Radio/radio_driver.h:
+/home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Radio/radio_conf.h:
+../Core/Inc/platform.h:
+../Drivers/STM32WLxx_HAL_Driver/Inc/stm32wlxx_ll_gpio.h:
+/home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Drivers/BSP/STM32WLxx_Nucleo/stm32wlxx_nucleo_radio.h:
+/home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Utils/misc/stm32_mem.h:
+/home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Utils/conf/utilities_conf.h:
+../Drivers/CMSIS/Include/cmsis_compiler.h:
+/home/danilo-alencar/Documents/GitHub/Projeto_LoRa/Firmware/LoRa_RS41/Radio/radio_board_if.h:
+../Core/Inc/protocol.h:
